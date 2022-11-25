@@ -49,7 +49,10 @@ python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'; t = Templat
 ```
 
 ## 2.字串列表拼接
-當需要拼接 list/tuple/set 等可循環的資料，最快的方式是 ```''.join()```  
+當需要拼接 list/tuple/set 等可循環的資料，最快的方式是 ```''.join()``` 
+
+必須留意的是，使用```''.join()```時資料必須是```str```，因此需要先將資料轉為```str```格式。
+我們也可以利用map方式來將非```str```格式的資料轉換為```str```格式，如：```''.join(map(str,iterList))```。
 
 ```bash
 python3 -m timeit -s "t = [str(i) for i in range(13)]" "' '.join(t)"  # join
@@ -124,3 +127,25 @@ b(strList)
 [3.74213033s] b({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
 ```
 可以看到兩種方式基本上是相同的，挑個喜歡的即可。
+
+## 3.列表推導模式 list/dict/tuple comphenshion
+當你所需的資料是需要透過遞迴(loop)組成dict/list/tupe時可多利用。
+```python
+iterations = 100000
+
+@checkTimer
+def a():
+    myList = []
+    for i in range(iterations):
+        myList.append(i+1)
+
+@checkTimer        
+def b():
+    myList = [i+1 for i in range(iterations)]
+
+a()
+[0.02506243s] a() -> None
+b()
+[0.01312026s] b() -> None
+```
+
