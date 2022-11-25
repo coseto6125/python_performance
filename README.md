@@ -93,23 +93,24 @@ s = ''.join(strList)
 ```python
 strList = [['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]
 
-
 @checkTimer
 def a(strList):
-    for _ in range(100000):
-        q = ''.join(''.join(i) for i in strList)
-    return q
-
-@checkTimer
-def b(strList):
     for _ in range(100000):
         q = ''.join(map(''.join,strList))
     return q
 
+
+@checkTimer
+def b(strList):
+    for _ in range(100000):
+        q = ''.join(''.join(i) for i in strList)
+    return q
+
+
 print(a(strList))
-#[1.68363976s] a([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
+#[0.06821919s] a([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
 print(b(strList))
-#[0.06821919s] b([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
+#[1.68363976s] b([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
 ```
 另外 dict in list該如何處理呢？
 ```
@@ -175,10 +176,11 @@ def e():
     return s
 
 a(),b(),c(),d(),e()
-#[0.03499549s] a() -> 12345123456
-#[0.03871182s] b() -> 12345123456
-#[0.03970916s] d() -> 12345123456
-#[0.44458393s] e() -> 12345123456
+#[0.03594051s] a() -> 12345123456
+#[0.03897319s] b() -> 12345123456
+#[0.04752491s] c() -> 12345123456
+#[0.04102941s] d() -> 12345123456
+#[0.46192845s] e() -> 12345123456
 ```
 我們透過前面的比較，知道了 ```f-string``` 快於 ```a+b```，  
 但 ```+=``` 會再快於 ```f-string```，```+=```與```a+b```是兩個不一樣的型態模式。  
@@ -191,10 +193,10 @@ a(),b(),c(),d(),e()
 另外在上方案例```d(),e()```反而與前面提到的```map```效率不符。  
 原因在於```d(),e()```的結構有多重遞迴的情況。  
 仔細看語法可以發現，為了要將值轉為string我們循環了一次轉換後，才再一次循環將字串拼接起來。  
-如詞多重嵌套循環的情況下，再快的方式都會使其遞增為倍數，也就是演算法常提到的 ```O(log n)```。
-而 ```a()``` 與 ```b()``` 則只有 ```O(n)``` 相對來的快。
+如詞多重嵌套循環的情況下，再快的方式都會使其遞增為倍數，也就是演算法常提到的 ```O(log n)```。  
+而 ```a()``` 與 ```b()``` 則只有 ```O(n)``` 相對來的快。  
 
-## 3.列表推導模式 list/dict/tuple comphenshion
+## 3.列表推導模式 list/dict/tuple comphenshion 與數字加總
 當你所需的資料是需要透過遞迴(loop)組成dict/list/tupe時可多利用。
 ```python
 iterations = 100000
@@ -213,5 +215,53 @@ a()
 [0.02506243s] a() -> None
 b()
 [0.01312026s] b() -> None
+```
+## 4. 合併列表(後加總)
+透過```from itertools import chain```將可快速合併子列表. 
+```a(),b()```為拆分後才加總，  
+而```c(),d(),e()```則為循環提出每一個子列表加總，最後再加總，  
+同上例最後提到部分，又是一個多重嵌套造成的時間消耗。
+
+```python
+lis = [[1,2,3,4,5] for _ in range(50)]
+
+
+@checkTimer
+def a():
+    from itertools import chain
+    for _ in range(10000):
+        s = sum(chain.from_iterable(lis))
+    return s
+
+@checkTimer
+def b():
+    from itertools import chain
+    for _ in range(10000):
+        s = sum(chain(*lis))
+    return s
+
+@checkTimer
+def c():
+    for _ in range(10000):
+        s = sum(map(sum, lis))
+    return s
+
+@checkTimer
+def d():
+    for _ in range(10000):
+        s = sum(sum(lis, []))
+    return s
+
+@checkTimer
+def e():
+    for _ in range(10000):
+        s =sum(sum(x) for x in lis)
+    return s
+a(),b(),c(),d(),e()
+#[0.02996942s] a() -> 750
+#[0.03217515s] b() -> 750
+#[0.04394276s] c() -> 750
+#[0.14855066s] d() -> 750
+#[1.53052591s] e() -> 750
 ```
 
