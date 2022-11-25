@@ -208,10 +208,9 @@ def a():
 def b():
     myList = [i+1 for i in range(iterations)]
 
-a()
-[0.02506243s] a() -> None
-b()
-[0.01312026s] b() -> None
+a(),b()
+#[0.02506243s] a() -> None
+#[0.01312026s] b() -> None
 ```
 ## 4. 合併列表(後加總)
 透過```from itertools import chain```將可快速合併子列表. 
