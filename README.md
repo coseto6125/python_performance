@@ -50,21 +50,38 @@ python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'; t = Templat
 
 ## 2.字串列表拼接
 當需要拼接 list/tuple/set 等可循環的資料，最快的方式是 ```''.join()```  
+
+```bash
+python3 -m timeit -s "t = [str(i) for i in range(13)]" "' '.join(t)"  # join
+2000000 loops, best of 5: 156 nsec per loop
+
+python3 -m timeit -s "a, b, c, d, e, f, g, h, i, j, k, l, m = [str(s) for s in range(13)]" "f'{a} {b} {c} {d} {e} {f} {g} {h} {i} {j} {k} {l} {m}'"  # f-string
+1000000 loops, best of 5: 240 nsec per loop
+
+python3 -m timeit -s "t = [str(s) for s in range(13)]" "'{} {} {} {} {} {} {} {} {} {} {} {} {}'.format(*t)"  # format
+500000 loops, best of 5: 652 nsec per loop
+
+python3 -m timeit -s "a, b, c, d, e, f, g, h, i, j, k, l, m = [str(s) for s in range(13)]" "a + ' ' + b + ' ' + c + ' ' + d + ' ' + e + ' ' + f + ' ' + g + ' ' + h + ' ' + i + ' ' + j + ' ' + k + ' ' + l + ' ' + m"  # concat
+500000 loops, best of 5: 834 nsec per loop
+
+python3 -m timeit -s "from string import Template; a, b, c, d, e, f, g, h, i, j, k, l, m = [str(s) for s in range(13)]" "Template('$a $b $c $d $e $f $g $h $i $j $k $l $m').substitute(a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m)"  # template string
+500000 loops, best of 5: 963 nsec per loop
+```
 做個寫法簡單示範：  
   
   
 
 如果是單行列表，
-不需要用 list comphension 方式 -> ```''.join(i for i in strList)```
-而是使用 ''.join(strList)即可。
+不需要用 list comphension 方式 -> ```''.join(i for i in strList)```  
+而是使用 ''.join(strList)即可。  
 ```python
 strList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
 s = ''.join(strList)
 ```
-如果是 多行 列表(list in list)，
-仍然不需要用 list comphension 方式 -> ```''.join([i for i in strList])```
-而是使用 ```''.join(map(''.join,strList))``` 即可。
-兩者相差時間約是三倍。
+如果是 多行 列表(list in list)，  
+仍然不需要用 list comphension 方式 -> ```''.join([i for i in strList])```  
+而是使用 ```''.join(map(''.join,strList))``` 即可。  
+兩者相差時間約是 &#x1F538; 24 倍 &#x1F538;。
 
  
 ```python
@@ -88,20 +105,22 @@ print(a(strList))
 print(b(strList))
 #[0.06821919s] b([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
 ```
-
-```bash
-python3 -m timeit -s "t = [str(i) for i in range(13)]" "' '.join(t)"  # join
-2000000 loops, best of 5: 156 nsec per loop
-
-python3 -m timeit -s "a, b, c, d, e, f, g, h, i, j, k, l, m = [str(s) for s in range(13)]" "f'{a} {b} {c} {d} {e} {f} {g} {h} {i} {j} {k} {l} {m}'"  # f-string
-1000000 loops, best of 5: 240 nsec per loop
-
-python3 -m timeit -s "t = [str(s) for s in range(13)]" "'{} {} {} {} {} {} {} {} {} {} {} {} {}'.format(*t)"  # format
-500000 loops, best of 5: 652 nsec per loop
-
-python3 -m timeit -s "a, b, c, d, e, f, g, h, i, j, k, l, m = [str(s) for s in range(13)]" "a + ' ' + b + ' ' + c + ' ' + d + ' ' + e + ' ' + f + ' ' + g + ' ' + h + ' ' + i + ' ' + j + ' ' + k + ' ' + l + ' ' + m"  # concat
-500000 loops, best of 5: 834 nsec per loop
-
-python3 -m timeit -s "from string import Template; a, b, c, d, e, f, g, h, i, j, k, l, m = [str(s) for s in range(13)]" "Template('$a $b $c $d $e $f $g $h $i $j $k $l $m').substitute(a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m)"  # template string
-500000 loops, best of 5: 963 nsec per loop
+另外 dict in list該如何處理呢？
 ```
+strList = {1:['0', '1', '2'], 2:['3', '4', '5'], 3:['6', '7', '8'], 4:['9', '10', '11', '12']}
+
+@checkTimer
+def a(strList):
+    for _ in range(1000000):
+        s = ''.join(map(lambda x:''.join(strList[x]),strList))
+@checkTimer
+def b(strList):
+    for _ in range(1000000):
+        s = ''.join(map(lambda x:''.join(x[1]),strList.items()))
+
+a(strList)
+[3.76131233s] a({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
+b(strList)
+[3.74213033s] b({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
+```
+可以看到兩種方式基本上是相同的，挑個喜歡的即可。
