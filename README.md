@@ -55,9 +55,8 @@ python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'; t = Templat
 我們也可以利用map方式來將非```str```格式的資料轉換為```str```格式，  
 如：
 ```''.join(map(str,iterList))```
-```''.join(map(''.join,map(str,
 
-```bash
+```shell
 python3 -m timeit -s "t = [str(i) for i in range(13)]" "' '.join(t)"  # join
 2000000 loops, best of 5: 156 nsec per loop
 
@@ -74,8 +73,6 @@ python3 -m timeit -s "from string import Template; a, b, c, d, e, f, g, h, i, j,
 500000 loops, best of 5: 963 nsec per loop
 ```
 做個寫法簡單示範：  
-  
-  
 
 如果是單行列表，
 不需要用 list comphension 方式 -> ```''.join(i for i in strList)```  
@@ -113,7 +110,7 @@ print(b(strList))
 #[1.68363976s] b([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
 ```
 另外 dict in list該如何處理呢？
-```
+```python
 strList = {1:['0', '1', '2'], 2:['3', '4', '5'], 3:['6', '7', '8'], 4:['9', '10', '11', '12']}
 
 @checkTimer
