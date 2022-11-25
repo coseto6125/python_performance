@@ -52,7 +52,10 @@ python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'; t = Templat
 當需要拼接 list/tuple/set 等可循環的資料，最快的方式是 ```''.join()``` 
 
 必須留意的是，使用```''.join()```時資料必須是```str```，因此需要先將資料轉為```str```格式。
-我們也可以利用map方式來將非```str```格式的資料轉換為```str```格式，如：```''.join(map(str,iterList))```。
+我們也可以利用map方式來將非```str```格式的資料轉換為```str```格式，  
+如：
+```''.join(map(str,iterList))```
+```''.join(map(''.join,map(str,
 
 ```bash
 python3 -m timeit -s "t = [str(i) for i in range(13)]" "' '.join(t)"  # join
@@ -127,6 +130,69 @@ b(strList)
 [3.74213033s] b({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
 ```
 可以看到兩種方式基本上是相同的，挑個喜歡的即可。
+
+反向教材：當資料是多重結構，且非```string```，但仍想拼接成字串時，這時候要避免多重遞迴造成時間的消耗。
+```python
+
+intList = {1:[1,2,3,4,5],2:[1,2,3,4,5,6]}
+
+@checkTimer
+def a():
+    for _ in range(10000):
+        s = ''
+        for _,v in intList.items():
+            for k in v:
+                s += str(k)
+    return s
+
+@checkTimer
+def b():
+    for _ in range(10000):
+        s = ''
+        for _,v in intList.items():
+            for k in v:
+                s = f'{s}{str(k)}'
+    return s
+
+def c():
+    for _ in range(10000):
+        s = ''
+        for _,v in intList.items():
+            for k in v:
+                s = s+str(v)
+    return s
+
+@checkTimer
+def d():
+    for _ in range(10000):
+        s = ''.join(map(''.join,(map(lambda x:(map(str,intList[x])),intList))))
+    return s
+
+@checkTimer
+def e():
+    for _ in range(10000):
+        s = ''.join(map(lambda x:''.join(str(i) for i in x[1]),intList.items()))
+    return s
+
+a(),b(),c(),d(),e()
+#[0.03499549s] a() -> 12345123456
+#[0.03871182s] b() -> 12345123456
+#[0.03970916s] d() -> 12345123456
+#[0.44458393s] e() -> 12345123456
+```
+我們透過前面的比較，知道了 ```f-string``` 快於 ```a+b```，  
+但 ```+=``` 會再快於 ```f-string```，```+=```與```a+b```是兩個不一樣的型態模式。  
+根據官網說明：https://docs.python.org/zh-tw/3/reference/simple_stmts.html#augmented-assignment-statements  
+>增强赋值语句例如 x += 1 可以改写为 x = x + 1 获得类似但并非完全等价的效果。  
+>在增强赋值的版本中，x 仅会被求值一次。  
+>而且，在可能的情况下，实际的运算是 原地 执行的， 
+>也就是说并不是创建一个新对象并将其赋值给目标，而是直接修改原对象。
+
+另外在上方案例```d(),e()```反而與前面提到的```map```效率不符。  
+原因在於```d(),e()```的結構有多重遞迴的情況。  
+仔細看語法可以發現，為了要將值轉為string我們循環了一次轉換後，才再一次循環將字串拼接起來。  
+如詞多重嵌套循環的情況下，再快的方式都會使其遞增為倍數，也就是演算法常提到的 ```O(log n)```。
+而 ```a()``` 與 ```b()``` 則只有 ```O(n)``` 相對來的快。
 
 ## 3.列表推導模式 list/dict/tuple comphenshion
 當你所需的資料是需要透過遞迴(loop)組成dict/list/tupe時可多利用。
