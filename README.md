@@ -8,7 +8,9 @@
   
 所有內容皆可能因數據大小/結構與Python及系統環境差異而有所差別。  
 但在基礎規範中，都可以作為標準依據參考。  
-而實戰效能評估則建議仍可利用效能評測工具來做為最終評比。
+而實戰效能評估則建議仍可利用效能[檢測工具(方式)](checkTime.py)來做為最終評比。
+
+
 
 
 
@@ -19,7 +21,8 @@
 用 + 的方式雖然省事，在 python 也鮮少出現初學 javascript 時常混淆數值相加還是字串拼接的問題。  
 但為了整體的效能與更易讀，還是使用 f-string 吧！  
   
-當需要格式化字串可參考官方文件：https://docs.python.org/zh-tw/3/tutorial/inputoutput.html#formatted-string-literals
+當需要格式化字串可參考官方文件：  
+https://docs.python.org/zh-tw/3/tutorial/inputoutput.html#formatted-string-literals
 
 ```bash
 python3 -m timeit -s "x = 'f'; y = 'z'" "f'{x} {y}'"  # f-string
