@@ -430,7 +430,7 @@ Pop: 當值不存在 ```set``` 將引發 ```KeyError``` 錯誤，會返回取出
 如果用 case1 將引發 KeyError，  
 若不想出現錯誤，則可能會使用 ```try ... except```。  
 但其實你有更好的選擇，採用 case 2 的```defaultdict()```的方式。  
-```
+```python
 data = [{'money': 10, 'name': 'Ken'}, 
         {'money': 50, 'name': 'Sam'},
         {'money': 70, 'name': 'Ken'},
