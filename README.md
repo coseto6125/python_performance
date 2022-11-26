@@ -396,7 +396,7 @@ a(), b()
 ```set``` 相較 ```list/tuple```：   
 ```set```內的資料都是唯一性的，因著透過 ```hash``` 唯一性，  
 對尋找內含資料```1 in s```或依值刪除資料```s.remove/discard```時都是 O(1)。  
-但資料屬於無序結構，也就是無索引功能，也因此內含無法使用類似list[1]的底標索引找資料。  
+但資料屬於無序結構，也就是無索引功能，也因此內含無法使用類似 ```list[1]``` 的底標索引找資料。  
   
 其中關於從 set 移除特定資料的這三項功能較為相近，因此特別提及：
 Remove: 當值不存在 ```set``` 將引發 ```KeyError``` 錯誤，不會返回刪除資料。 (與```list.remove()```相同) 
@@ -425,7 +425,7 @@ Pop: 當值不存在 ```set``` 將引發 ```KeyError``` 錯誤，會返回取出
 我們常見從```json```取出的資料結構進到 Python 後就是一種標準的字典。  
 ```from collection import defaultdict``` 是一種可以給予預設值的數據結構。
 參考下方可以理解使用案例：  
-  
+
 若當想將列表中的 ```dict```資料取出並加總，  
 如果用 case1 將引發 KeyError，  
 若不想出現錯誤，則可能會使用 ```try ... except```。  
@@ -450,4 +450,74 @@ for i in data:
     dictData[i['name']] += i['money']
 print(dictData)
 # defaultdict(<class 'int'>, {'Ken': 80, 'Sam': 60})
+```
+由於 search in dict 是 O(1)，  
+所以在判斷 key 有沒有在 dict 內，  
+如果現階段不需要取值做操作，則不用以 ```if dict.get(a)``` 做判斷。  
+  
+比方說我們有一個 dict 字典檔，
+只需要根據特定key去轉換單詞，
+key不存在的情況下不轉換，則不需要事先取key。
+  
+易讀情況下可以直接以 ```if a in dict```做判斷。  
+而實際上兩種方式，分別在值與字串，差異並不顯著，```search in dict```僅略優 1x~3x 奈秒。  
+
+這裡主要說明的是，search key in dict是 ```O(1)```，
+而非類似於 list comprehension ```[i for i in list if i ==key]``` 的 O(N)。
+
+```python
+d = dict.fromKeys(range(10000)) # 以值查找
+
+def d_get_has(d):
+    if d.get(1):
+        return '1'
+
+def d_get_not_has(d):
+    if d.get(-1):
+        return '1'
+    return '1'
+
+def d_in_has(d):
+    if 1 in d:
+        return '1'
+
+def d_in_not_has(d):
+    if -1 in d:
+        return '1'
+    return '1'
+
+# d_get_has
+# 500000 loops, best of 5: 781 nsec per loop
+# d_get_not_has
+# 500000 loops, best of 5: 796 nsec per loop
+# d_in_has
+# 500000 loops, best of 5: 749 nsec per loop
+# d_in_not_has
+# 500000 loops, best of 5: 746 nsec per loop
+```
+```python
+d = dict.fromKeys(map(str,range(10000))) # 以字查找
+
+def d_get_has(d):
+    return d.get('1')
+
+def d_get_not_has(d):
+    return d.get('-1')
+
+def d_in_has(d):
+    if 1 in d:
+        return d['1']
+
+def d_in_not_has(d):
+    if -1 in d:
+        return d['-1']
+        
+# d_get_has
+# 500000 loops, best of 5: 789 nsec per loop
+# d_get_not_has
+# 500000 loops, best of 5: 767 nsec per loop
+# d_in_has
+# 500000 loops, best of 5: 756 nsec per loop
+# d_in_not_has
+# 500000 loops, best of 5: 754 nsec per loop
 ```
