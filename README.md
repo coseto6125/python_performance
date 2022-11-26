@@ -322,3 +322,77 @@ a(), b(), c(), d(), e(), f()
 #[0.00506019s] e() -> 30
 #[0.00341914s] f() -> 30
 ```
+
+## 5.時間複雜度
+[參考資料](https://gist.github.com/Gr1N/60b346b5e91babb5efac)  
+
+### list
+| 操作 |Operation     | Example      | Class         | Notes
+|  :----:  |  :----:  | :----:  |  :----:  | :----:  |
+| 索引 |Index         | l[i]         | O(1)	     | |
+| 存放 |Store         | l[i] = 0     | O(1)	     | |
+| 長度 |Length        | len(l)       | O(1)	     | |
+| 添加 |Append        | l.append(5)  | O(1)	     | |
+| 取出 |Pop	      | l.pop()      | O(1)	     | same as l.pop(-1), popping at end |
+| 清除 |Clear         | l.clear()    | O(1)	     | similar to l = [] |
+| 分割 |Slice         | l[a:b]       | O(b-a)	     | l[1:5]:O(l)/l[:]:O(len(l)-0)=O(N) |
+| 展開 |Extend        | l.extend(...)| O(len(...))   | depends only on len of extension |
+| 轉換 |Construction  | list(...)    | O(len(...))   | depends on length of argument |
+| 比較 |check ==, !=  | l1 == l2     | O(N)          | |
+| 插入 |Insert        | l[a:b] = ... | O(N)	     | |
+| 刪除 |Delete        | del l[i]     | O(N)	     |  |
+| 移除 |Remove        | l.remove(...)| O(N)	     |  |
+| 包含 |Containment   | x in/not in l| O(N)	     | searches list |
+| 複製 |Copy          | l.copy()     | O(N)	     | Same as l[:] which is O(N) |
+| 取出 |Pop	      | l.pop(0)     | O(N)	     |  |
+| 取最大/最小 |Extreme value | min(l)/max(l)| O(N)	     | |
+| 反轉 |Reverse	      | l.reverse()  | O(N)	     | |
+| 遞迴 |Iteration     | for v in l:  | O(N)          | |
+| 排序 |Sort          | l.sort()     | O(N Log N)    | key/reverse doesn't change this |
+| 多重遞迴 |Multiply      | k*l          | O(k N)        | 5*l is O(N): len(l)*l is O(N**2) |
+
+```tuple()``` 與列表擁有相同的時間複雜度，差異性在於，tuple無法執行增加與刪除操作，但相同資料節省更多的空間。  
+此外創建() ```list()``` 耗時會相較 ```tuple``` 來得短。
+```python
+lis = [[1, 2, 3, 4, 5] for _ in range(10)]
+
+@checkTimer
+def a():
+    for _ in range(10000):
+        s = tuple(chain.from_iterable(lis))
+    return 
+
+
+@checkTimer
+def b():
+    for _ in range(10000):
+        s = list(chain.from_iterable(lis))
+    return 
+a(), b()
+#[0.01175988s] a() -> None
+#[0.01078576s] b() -> None
+```
+### set
+| 操作 || Operation     | Example      | Class         | Notes |
+| :--------------: | :--------------: | :--------------: | :---------------: | :-------------------------------: |
+| 長度 | Length        | len(s)       | O(1)	     | |
+| 添加 | Add           | s.add(5)     | O(1)	     | |
+| 包含 | Containment   | x in/not in s| O(1)	     | compare to list/tuple - O(N) |
+| 移除 | Remove        | s.remove(5)  | O(1)	     | compare to list/tuple - O(N) |
+| 拋棄 | Discard       | s.discard(5) | O(1)	     |  |
+| 取出 | Pop           | s.pop()      | O(1)	     | compare to list - O(N) |
+| 清除 | Clear         | s.clear()    | O(1)	     | similar to s = set() |
+| 轉換 | Construction  | set(...)     | len(...)      | |
+| 比較 | check ==, !=  | s != t       | O(min(len(s),lent(t)) |
+| 左移位運算 | <=/<          | s <= t       | O(len(s1))    | issubset |
+| 右移位運算 | >=/>          | s >= t       | O(len(s2))    | issuperset s <= t == t >= s |
+| 集合 | Union         | s | t        | O(len(s)+len(t)) |
+| 交集 | Intersection  | s & t        | O(min(len(s),lent(t)) |
+| 差集 | Difference    | s - t        | O(len(t))     | |
+| 對稱差集 | Symmetric Diff| s ^ t        | O(len(s))     | |
+| 遞迴 | Iteration     | for v in s:  | O(N)          | |
+| 複製 | Copy          | s.copy()     | O(N)	     | |  
+
+```set`` 相較 ```list/tuple```：   
+```set```內的資料都是唯一性的，因著透過 ```hash``` 唯一性，對尋找內含資料```1 in s```或依值刪除資料```s.remove/discard```時都是 O(1)。  
+但資料屬於無序結構，也就是無索引功能，也因此內含無法使用類似list[1]的底標索引找資料。  
