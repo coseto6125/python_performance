@@ -4,11 +4,8 @@
 即便如此，在更了解模組使用與語法選擇，仍可大幅提升執行效率。  
 
 這邊的內容不深入討論演算法；  
-而是分享個人學習過程中，以效率為優先且更 "Pythonic" 的寫作方式與技巧。  
+而是分享在各種實測下，以效率為優先且更 "Pythonic" 的寫作方式與技巧。  
   
-
-**下列所有效能比較表，由上至下快至慢。  
-
 所有內容皆可能因數據大小/結構與Python及系統環境差異而有所差別。  
 但在基礎規範中，都可以作為標準依據參考。  
 而實戰效能評估則建議仍可利用效能評測工具來做為最終評比。
@@ -43,14 +40,14 @@ python3 -m timeit -s "x = 'f'; y = 'z'" "'{} {}'.format(x,y)"  # format
 python3 -m timeit -s "x = 'f'; y = 'z'; t = '{} {}'.format" "t(x,y)"  # format2
 2000000 loops, best of 5: 165 nsec per loop
 
-python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'" "Template('$x $y').substitute(x=x, y=y)"  # template string
-500000 loops, best of 5: 545 nsec per loop
-
 python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'; t = Template('$x $y')" "t.substitute(x=x, y=y)"  # template string2
 1000000 loops, best of 5: 390 nsec per loop
 
 python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'; t = Template('$x $y').substitute" "t(x=x, y=y)"  # template string3
 1000000 loops, best of 5: 388 nsec per loop
+
+python3 -m timeit -s "from string import Template; x = 'f'; y = 'z'" "Template('$x $y').substitute(x=x, y=y)"  # template string
+500000 loops, best of 5: 545 nsec per loop
 ```
 
 ## 2.字串列表拼接
@@ -109,9 +106,8 @@ def b(strList):
     return q
 
 
-print(a(strList))
+print(a(strList)),print(b(strList))
 #[0.06821919s] a([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
-print(b(strList))
 #[1.68363976s] b([['0', '1', '2'], ['3', '4', '5'], ['6', '7', '8'], ['9', '10', '11', '12']]) -> 0123456789101112
 ```
 另外 dict in list該如何處理呢？
@@ -127,10 +123,9 @@ def b(strList):
     for _ in range(1000000):
         s = ''.join(map(lambda x:''.join(x[1]),strList.items()))
 
-a(strList)
-[3.76131233s] a({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
-b(strList)
-[3.74213033s] b({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
+a(strList),b(strList)
+#[3.76131233s] a({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
+#[3.74213033s] b({1: ['0', '1', '2'], 2: ['3', '4', '5'], 3: ['6', '7', '8'], 4: ['9', '10', '11', '12']}) -> None
 ```
 可以看到兩種方式基本上是相同的，挑個喜歡的即可。
 
