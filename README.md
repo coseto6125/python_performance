@@ -393,6 +393,61 @@ a(), b()
 | 遞迴 | Iteration     | for v in s:  | O(N)          | |
 | 複製 | Copy          | s.copy()     | O(N)	     | |  
 
-```set`` 相較 ```list/tuple```：   
-```set```內的資料都是唯一性的，因著透過 ```hash``` 唯一性，對尋找內含資料```1 in s```或依值刪除資料```s.remove/discard```時都是 O(1)。  
+```set``` 相較 ```list/tuple```：   
+```set```內的資料都是唯一性的，因著透過 ```hash``` 唯一性，  
+對尋找內含資料```1 in s```或依值刪除資料```s.remove/discard```時都是 O(1)。  
 但資料屬於無序結構，也就是無索引功能，也因此內含無法使用類似list[1]的底標索引找資料。  
+  
+其中關於從 set 移除特定資料的這三項功能較為相近，因此特別提及：
+Remove: 當值不存在 ```set``` 將引發 ```KeyError``` 錯誤，不會返回刪除資料。 (與```list.remove()```相同) 
+Discard: 當值不存在 ```set``` “不會“ 引發 ```KeyError``` 錯誤，不會返回刪除資料。
+Pop: 當值不存在 ```set``` 將引發 ```KeyError``` 錯誤，會返回取出資料。 (與```list.pop()```相同)  
+  
+```frozenset()``` 則是 ```set``` 的版本的 ```tuple()```，擁有無法修改的特色。
+
+## Dictionaries
+|操作|Operation     | Example      | Class         | Notes
+|:--------------:|:--------------:|:--------------:|:--------------:|:--------------:|
+|索引|Index         | d[k]         | O(1)	     ||
+|儲存|Store         | d[k] = v     | O(1)	     ||
+|長度|Length        | len(d)       | O(1)	     ||
+|刪除|Delete        | del d[k]     | O(1)	     ||
+|取值/設值|get/setdefault| d.method     | O(1)	     ||
+|取出值|Pop           | d.pop(k)     | O(1)	     ||
+|取物件|Pop item      | d.popitem()  | O(1)	     ||
+|清除|Clear         | d.clear()    | O(1)	     | similar to s = {} or = dict()|
+|取所有索引|Views         | d.keys()     | O(1)	     ||
+|轉換|Construction  | dict(...)    | len(...)      ||
+|遞迴|Iteration     | for k in d:  | O(N)          | all forms: keys, values, items|
+
+```dict``` 可稱為擁有索引的 ```set()```，其綜合了 ```set``` 與 ```list``` 許多的優點。  
+其缺點就是創建所需的空間較高，但用空間換得的時間，也是相同的巨大。  
+我們常見從```json```取出的資料結構進到 Python 後就是一種標準的字典。  
+```from collection import defaultdict``` 是一種可以給予預設值的數據結構。
+參考下方可以理解使用案例：
+
+若當想將列表中的 ```dict```資料取出並加總，  
+如果用 case1 將引發 KeyError，  
+若不想出現錯誤，則可能會使用 ```try ... except```。  
+但其實你有更好的選擇，採用 case 2 的```defaultdict()```的方式。  
+```
+data = [{'money': 10, 'name': 'Ken'}, 
+        {'money': 50, 'name': 'Sam'},
+        {'money': 70, 'name': 'Ken'},
+        {'money': 10, 'name': 'Sam'}]
+
+#case 1
+dictData = {}
+for i in data:
+    dictData[i['name']] += i['money']
+# 發生例外狀況: KeyError
+# 'Ken'
+
+#case 2
+from collections import defaultdict
+dictData = defaultdict(int)
+for i in data:
+    dictData[i['name']] += i['money']
+print(dictData)
+# defaultdict(<class 'int'>, {'Ken': 80, 'Sam': 60})
+```
