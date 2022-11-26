@@ -216,7 +216,7 @@ a(),b()
 #[0.01312026s] b() -> None
 ```
 ## 4. 合併列表(後加總)
-透過```from itertools import chain```將可快速合併子列表.  
+透過```from itertools import chain```是可最合併多個list的方式。  
 ```a(),b()```為拆分後才加總，  
 而```c(),d(),e()```則為循環提出每一個子列表加總，最後再加總，  
 同上例最後提到部分，又是一個多重嵌套造成的時間消耗。  
@@ -263,4 +263,62 @@ a(),b(),c(),d(),e()
 #[0.14855066s] d() -> 750
 #[1.53052591s] e() -> 750
 ```
+但當你的需要合併的列表數低於5組的情況下，  
+你應該選擇的方式是利用 ```+``` 而非 ```chain```。  
+參考下表，10 組的列表，在取其中 5 組的時候 ```chain``` 效率會開始高於 ```+```。
+```python
+from itertools import chain
 
+lis = [[1, 2, 3, 4, 5] for _ in range(10)]
+
+@checkTimer
+def a():
+    for _ in range(10000):
+        s = sum(chain.from_iterable(lis))
+    return s
+
+
+@checkTimer
+def b():
+    for _ in range(10000):
+        s = sum(lis[0] + lis[1] + lis[2] + lis[3] + lis[4] + lis[5] + lis[6] +
+                lis[7] + lis[8] + lis[9])
+    return s
+
+
+@checkTimer
+def c():
+    for _ in range(10000):
+        s = sum(chain.from_iterable(lis[:6]))
+    return s
+
+
+@checkTimer
+def d():
+    for _ in range(10000):
+        s = sum(lis[0] + lis[1] + lis[2] + lis[3] + lis[4] + lis[5])
+    return s
+
+
+@checkTimer
+def e():
+    for _ in range(10000):
+        s = sum(chain.from_iterable(lis[:2]))
+    return s
+
+
+@checkTimer
+def f():
+    for _ in range(10000):
+        s = sum(lis[0] + lis[1])
+    return s
+
+
+a(), b(), c(), d(), e(), f()
+#[0.00892185s] a() -> 150
+#[0.01682082s] b() -> 150
+#[0.00752668s] c() -> 90
+#[0.00900056s] d() -> 90
+#[0.00506019s] e() -> 30
+#[0.00341914s] f() -> 30
+```
