@@ -8,7 +8,7 @@
   
 所有內容皆可能因數據大小/結構與Python及系統環境差異而有所差別。  
 但在基礎規範中，都可以作為標準依據參考。  
-而實戰效能評估則建議仍可利用效能[檢測工具(方式)](checkTime.py)來做為最終評比。
+而實戰效能評估則建議仍可利用[效能檢測裝飾器](checkTime.py),[timeit](https://docs.python.org/zh-tw/3/library/timeit.html)或更進階的[bigO](https://github.com/pberkes/big_O),來做為最終評比。
 
 
 
@@ -21,8 +21,8 @@
 用 + 的方式雖然省事，在 python 也鮮少出現初學 javascript 時常混淆數值相加還是字串拼接的問題。  
 但為了整體的效能與更易讀，還是使用 f-string 吧！  
   
-當需要格式化字串可參考官方文件：  
-https://docs.python.org/zh-tw/3/tutorial/inputoutput.html#formatted-string-literals
+當需要格式化字串可參考[官方文件](https://docs.python.org/zh-tw/3/tutorial/inputoutput.html#formatted-string-literals
+)：  
 
 ```bash
 python3 -m timeit -s "x = 'f'; y = 'z'" "f'{x} {y}'"  # f-string
@@ -184,7 +184,7 @@ a(),b(),c(),d(),e()
 ```
 我們透過前面的比較，知道了 ```f-string``` 快於 ```a+b```，  
 但 ```+=``` 會再快於 ```f-string```，```+=```與```a+b```是兩個不一樣的型態模式。  
-根據官網說明：https://docs.python.org/zh-tw/3/reference/simple_stmts.html#augmented-assignment-statements  
+根據Python[官方文件](https://docs.python.org/zh-tw/3/reference/simple_stmts.html#augmented-assignment-statements)說明：  
 >增强赋值语句例如 x += 1 可以改写为 x = x + 1 获得类似但并非完全等价的效果。  
 >在增强赋值的版本中，x 仅会被求值一次。  
 >而且，在可能的情况下，实际的运算是 原地 执行的， 
